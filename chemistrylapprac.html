@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICT Group 3: Chemistry Lab</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --info: #3b82f6;
+            --bg: #020617;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: #f8fafc;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* INTRO PAGE */
+        #intro-page {
+            position: fixed; inset: 0;
+            background: radial-gradient(circle, #1e1b4b, #020617);
+            z-index: 3000; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center;
+        }
+
+        .intro-card {
+            background: rgba(15, 23, 42, 0.9);
+            padding: 40px; border-radius: 20px;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.2);
+            width: 80%; max-width: 500px;
+        }
+
+        /* SAFETY SCREEN */
+        #safety-screen {
+            position: fixed; inset: 0; background: #0f172a;
+            z-index: 2000; display: none; flex-direction: column;
+            align-items: center; justify-content: center;
+        }
+
+        .ppe-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px; }
+        .ppe-item {
+            padding: 15px 30px; background: #1e293b; border: 2px solid #334155;
+            border-radius: 12px; cursor: pointer; transition: 0.3s;
+        }
+        .ppe-item.equipped { border-color: var(--success); background: #064e3b; }
+
+        /* LAB INTERFACE */
+        #lab-ui { display: none; height: 100vh; flex-direction: column; }
+
+        .top-dash {
+            display: grid; grid-template-columns: 1fr 2fr 1fr;
+            background: #0f172a; padding: 15px; border-bottom: 2px solid var(--primary);
+        }
+
+        .activity-feed {
+            background: #020617; border: 1px solid #334155;
+            height: 60px; border-radius: 8px; padding: 10px;
+            font-family: monospace; font-size: 0.9rem; overflow-y: auto; color: var(--info);
+        }
+
+        /* BENCH AREA */
+        .bench-area {
+            flex: 1; display: flex; justify-content: center; align-items: flex-end;
+            position: relative; padding-bottom: 80px;
+        }
+
+        /* STANDALONE LITMUS PAPER */
+        #litmus-strip {
+            width: 20px; height: 80px; background: #fde68a;
+            border: 1px solid #000; position: absolute;
+            top: 150px; left: 100px; cursor: grab; z-index: 100;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+            border-radius: 2px;
+        }
+
+        .rack { display: flex; gap: 60px; z-index: 10; align-items: flex-end; }
+        .tube-set { display: flex; flex-direction: column; align-items: center; }
+
+        .test-tube {
+            width: 45px; height: 160px;
+            background: rgba(255,255,255,0.1);
+            border: 3px solid rgba(255,255,255,0.6);
+            border-radius: 0 0 25px 25px;
+            position: relative; overflow: hidden;
+        }
+
+        .liquid { position: absolute; bottom: 0; width: 100%; height: 60%; background: rgba(255,255,255,0.05); transition: 1s ease; }
+
+        .ph-box {
+            width: 50px; background: #000; border: 2px solid var(--primary);
+            color: #fff; padding: 5px; margin-top: 10px; border-radius: 5px; text-align: center;
+        }
+
+        .btn {
+            padding: 12px 30px; border-radius: 8px; border: none;
+            font-weight: bold; cursor: pointer; transition: 0.3s;
+        }
+        .btn-p { background: var(--primary); color: white; }
+
+        /* CELEBRATION */
+        .emoji {
+            position: fixed; pointer-events: none; z-index: 5000;
+            animation: flyUp 3s ease-out forwards; font-size: 2rem;
+        }
+        @keyframes flyUp {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="applause" src="https://www.fesliyanstudios.com/play-mp3/2655"></audio>
+
+    <div id="intro-page">
+        <div class="intro-card">
+            <p>PRESENTATION</p>
+            <h1 style="color:var(--primary)">Major: ICT</h1>
+            <h2>Group: 3</h2>
+            <div style="text-align: left; font-family: monospace; font-size: 0.9rem; border: 1px solid #334155; padding: 10px;">
+                Names &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GC Number<br>
+                1. MAMADOU SERREH JALLOW &nbsp;&nbsp; 2322958<br>
+                2. HAWA JAMMEH &nbsp;&nbsp; 2322211<br>
+                3. HAMAD S. JALLOW &nbsp;&nbsp; 2322544<br>
+                4. ISATOU SIBI &nbsp;&nbsp; 2322875<br>
+                5. MORRO SUSSO &nbsp;&nbsp; 2322813
+            </div>
+            <br>
+            <button class="btn btn-p" onclick="showSafety()">START LAB</button>
+        </div>
+    </div>
+
+    <div id="safety-screen">
+        <h2 style="color: var(--warning)">⚠️ SAFETY PRECAUTIONS</h2>
+        <div class="ppe-grid">
+            <div class="ppe-item" onclick="equip(this, 'Coat')">🥼 Coat</div>
+            <div class="ppe-item" onclick="equip(this, 'Mask')">😷 Mask</div>
+            <div class="ppe-item" onclick="equip(this, 'Boots')">🥾 Boots</div>
+            <div class="ppe-item" onclick="equip(this, 'Goggles')">🥽 Goggles</div>
+        </div>
+        <button id="entryBtn" class="btn btn-p" style="display:none; background: var(--success);" onclick="enterLab()">ENTER LABORATORY</button>
+    </div>
+
+    <div id="lab-ui">
+        <div class="top-dash">
+            <div>
+                <small>TIMER</small>
+                <div id="clock" style="font-size: 1.8rem; color: var(--danger); font-weight: bold;">01:30</div>
+            </div>
+            <div>
+                <small>LIVE ACTIVITY DASHBOARD</small>
+                <div class="activity-feed" id="feed">> Awaiting experiment...</div>
+            </div>
+            <div style="text-align: right;">
+                <small>MARK (Total: 30)</small>
+                <div id="score-display" style="font-size: 1.8rem; color: var(--success); font-weight: bold;">30</div>
+            </div>
+        </div>
+
+        <div class="bench-area">
+            <div id="litmus-strip" draggable="true" ondragstart="drag(event)"></div>
+            
+            <div class="rack">
+                <div class="tube-set">
+                    <div class="test-tube" ondragover="event.preventDefault()" ondrop="test(event, 'acid')">
+                        <div class="liquid" id="liq1"></div>
+                    </div>
+                    <input type="number" class="ph-box" id="a1" placeholder="pH">
+                    <small>Sample A</small>
+                </div>
+                <div class="tube-set">
+                    <div class="test-tube" ondragover="event.preventDefault()" ondrop="test(event, 'base')">
+                        <div class="liquid" id="liq2"></div>
+                    </div>
+                    <input type="number" class="ph-box" id="a2" placeholder="pH">
+                    <small>Sample B</small>
+                </div>
+                <div class="tube-set">
+                    <div class="test-tube" ondragover="event.preventDefault()" ondrop="test(event, 'neutral')">
+                        <div class="liquid" id="liq3"></div>
+                    </div>
+                    <input type="number" class="ph-box" id="a3" placeholder="pH">
+                    <small>Sample C</small>
+                </div>
+            </div>
+        </div>
+
+        <div style="background: #0f172a; padding: 20px; text-align: center;">
+            <button class="btn btn-p" onclick="validate()">SUBMIT PRACTICAL</button>
+        </div>
+    </div>
+
+    <script>
+        let ppeCount = 0;
+        let timeLeft = 90;
+        let marks = 30;
+        let studentScore = 30;
+
+        function addLog(msg) {
+            const f = document.getElementById('feed');
+            f.innerHTML = `> ${msg}<br>` + f.innerHTML;
+        }
+
+        function showSafety() {
+            document.getElementById('intro-page').style.display = 'none';
+            document.getElementById('safety-screen').style.display = 'flex';
+        }
+
+        function equip(el, name) {
+            if(!el.classList.contains('equipped')) {
+                el.classList.add('equipped');
+                ppeCount++;
+                addLog(`Equipped: ${name}`);
+            }
+            if(ppeCount >= 4) document.getElementById('entryBtn').style.display = 'block';
+        }
+
+        function enterLab() {
+            document.getElementById('safety-screen').style.display = 'none';
+            document.getElementById('lab-ui').style.display = 'flex';
+            setInterval(() => {
+                if(timeLeft > 0) {
+                    timeLeft--;
+                    let m = Math.floor(timeLeft / 60);
+                    let s = timeLeft % 60;
+                    document.getElementById('clock').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+                } else { location.reload(); }
+            }, 1000);
+        }
+
+        function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); }
+
+        function test(ev, type) {
+            const liq = ev.currentTarget.querySelector('.liquid');
+            const strip = document.getElementById('litmus-strip');
+            
+            if(type === 'acid') { liq.style.background = "rgba(239, 68, 68, 0.5)"; strip.style.background = "red"; addLog("Litmus turned RED (Acid)"); }
+            if(type === 'base') { liq.style.background = "rgba(59, 130, 246, 0.5)"; strip.style.background = "blue"; addLog("Litmus turned BLUE (Base)"); }
+            if(type === 'neutral') { liq.style.background = "rgba(34, 197, 94, 0.5)"; strip.style.background = "#d1d5db"; addLog("Litmus stayed GRAY (Neutral)"); }
+        }
+
+        function celebrate() {
+            document.getElementById('applause').play();
+            const emojis = ['💐', '❤️', '🎉', '🧪', '💖', '🎓'];
+            for(let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const e = document.createElement('div');
+                    e.className = 'emoji';
+                    e.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                    e.style.left = Math.random() * 100 + "vw";
+                    document.body.appendChild(e);
+                    setTimeout(() => e.remove(), 3000);
+                }, i * 80);
+            }
+        }
+
+        function validate() {
+            const v1 = document.getElementById('a1').value;
+            const v2 = document.getElementById('a2').value;
+            const v3 = document.getElementById('a3').value;
+
+            if(v1 < 7 && v1 !== "" && v2 > 7 && v3 == 7) {
+                if(studentScore >= 15) {
+                    celebrate();
+                    setTimeout(() => alert(`EXCELLENT! Final Score: ${studentScore}/30`), 1000);
+                } else {
+                    alert(`PRACTICAL COMPLETED. Final Score: ${studentScore}/30`);
+                }
+            } else {
+                studentScore -= 5;
+                if(studentScore < 0) studentScore = 0;
+                document.getElementById('score-display').innerText = studentScore;
+                addLog("ERROR: Incorrect pH readings. -5 Marks.");
+                alert("The analysis is incorrect. Marks deducted!");
+            }
+        }
+    </script>
+</body>
+</html>
